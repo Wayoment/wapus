@@ -6211,20 +6211,97 @@ LPH_NO_VIRTUALIZE(function() -- Make UI
     knifebot:AddToggle("Only Kill Target Status", false, getCallback("Knife Bot%%Only Kill Target Status")):AddKeyBind(nil, "Terget Key Bind")
     knifebot:AddToggle("Whitelist Friendly Status", true, getCallback("Knife Bot%%Whitelist Friendly Status")):AddKeyBind(nil, "Friendly Key Bind")
 
-    antiaim:AddToggle("Enabled (May Cause Despawning)", false, getCallback("Anti Aim%%Enabled (May Cause Despawning)"))-- :AddKeyBind(nil, "Key Bind") broken
-    antiaim:AddToggle("Yaw", false, getCallback("Anti Aim%%Yaw"))
-    antiaim:AddSlider("Yaw Amount", 180, 0, 360, 1, " Degrees", getCallback("Anti Aim%%Yaw Amount"))
-    antiaim:AddDropdown("Yaw Mode", "Relative", {"Relative", "Absolute"}, getCallback("Anti Aim%%Yaw Mode"))
-    antiaim:AddToggle("Pitch", false, getCallback("Anti Aim%%Pitch"))
-    antiaim:AddSlider("Pitch Amount", 0, 0, 180, 1, " Degrees", getCallback("Anti Aim%%Pitch Amount"))
-    antiaim:AddDropdown("Pitch Mode", "Relative", {"Relative", "Absolute"}, getCallback("Anti Aim%%Pitch Mode"))
-    antiaim:AddToggle("Spin Bot", false, getCallback("Anti Aim%%Spin Bot"))
-    antiaim:AddSlider("Spin Speed", 180, 0, 1800, 1, " Degrees/Second", getCallback("Anti Aim%%Spin Speed"))
-    antiaim:AddDropdown("Spin Direction", "Right", {"Left", "Right"}, getCallback("Anti Aim%%Spin Direction"))
-    antiaim:AddToggle("Jitter", false, getCallback("Anti Aim%%Jitter"))
-    antiaim:AddSlider("Jitter Speed", 6, 0, 12, 1, " Shakes/Second", getCallback("Anti Aim%%Jitter Speed"))
-    antiaim:AddToggle("Force Stance", false, getCallback("Anti Aim%%Force Stance"))
-    antiaim:AddDropdown("Set Stance", "Prone", {"Stand", "Crouch", "Prone"}, getCallback("Anti Aim%%Set Stance"));
+   antiaim:AddToggle("Enabled (May Cause Despawning)", false, getCallback("Anti Aim%%Enabled (May Cause Despawning)"))
+-- :AddKeyBind(nil, "Key Bind") broken
+antiaim:AddToggle("Yaw", false, getCallback("Anti Aim%%Yaw"))
+antiaim:AddSlider("Yaw Amount", 180, 0, 360, 1, " Degrees", getCallback("Anti Aim%%Yaw Amount"))
+antiaim:AddDropdown("Yaw Mode", "Relative", {"Relative", "Absolute"}, getCallback("Anti Aim%%Yaw Mode"))
+antiaim:AddToggle("Pitch", false, getCallback("Anti Aim%%Pitch"))
+antiaim:AddSlider("Pitch Amount", 0, 0, 180, 1, " Degrees", getCallback("Anti Aim%%Pitch Amount"))
+antiaim:AddDropdown("Pitch Mode", "Relative", {"Relative", "Absolute"}, getCallback("Anti Aim%%Pitch Mode"))
+antiaim:AddToggle("Spin Bot", false, getCallback("Anti Aim%%Spin Bot"))
+antiaim:AddSlider("Spin Speed", 180, 0, 1800, 1, " Degrees/Second", getCallback("Anti Aim%%Spin Speed"))
+antiaim:AddDropdown("Spin Direction", "Right", {"Left", "Right"}, getCallback("Anti Aim%%Spin Direction"))
+antiaim:AddToggle("Jitter", false, getCallback("Anti Aim%%Jitter"))
+antiaim:AddSlider("Jitter Speed", 6, 0, 12, 1, " Shakes/Second", getCallback("Anti Aim%%Jitter Speed"))
+antiaim:AddToggle("Force Stance", false, getCallback("Anti Aim%%Force Stance"))
+antiaim:AddDropdown("Set Stance", "Prone", {"Stand", "Crouch", "Prone"}, getCallback("Anti Aim%%Set Stance"))
+
+-- Функция для рандомизации настроек
+local function randomizeAntiAim()
+    -- Функция для случайного выбора из таблицы
+    local function randomChoice(options)
+        return options[math.random(1, #options)]
+    end
+
+    -- Рандомные значения для каждого параметра
+    local randomYaw = math.random() > 0.5
+    local randomYawAmount = math.random(0, 360)
+    local randomYawMode = randomChoice({"Relative", "Absolute"})
+    
+    local randomPitch = math.random() > 0.5
+    local randomPitchAmount = math.random(0, 180)
+    local randomPitchMode = randomChoice({"Relative", "Absolute"})
+    
+    local randomSpin = math.random() > 0.5
+    local randomSpinSpeed = math.random(0, 1800)
+    local randomSpinDirection = randomChoice({"Left", "Right"})
+    
+    local randomJitter = math.random() > 0.5
+    local randomJitterSpeed = math.random(0, 12)
+    
+    local randomForceStance = math.random() > 0.5
+    local randomStance = randomChoice({"Stand", "Crouch", "Prone"})
+
+    -- Применяем рандомные настройки через колбэки
+    getCallback("Anti Aim%%Yaw")(randomYaw)
+    getCallback("Anti Aim%%Yaw Amount")(randomYawAmount)
+    getCallback("Anti Aim%%Yaw Mode")(randomYawMode)
+    
+    getCallback("Anti Aim%%Pitch")(randomPitch)
+    getCallback("Anti Aim%%Pitch Amount")(randomPitchAmount)
+    getCallback("Anti Aim%%Pitch Mode")(randomPitchMode)
+    
+    getCallback("Anti Aim%%Spin Bot")(randomSpin)
+    getCallback("Anti Aim%%Spin Speed")(randomSpinSpeed)
+    getCallback("Anti Aim%%Spin Direction")(randomSpinDirection)
+    
+    getCallback("Anti Aim%%Jitter")(randomJitter)
+    getCallback("Anti Aim%%Jitter Speed")(randomJitterSpeed)
+    
+    getCallback("Anti Aim%%Force Stance")(randomForceStance)
+    getCallback("Anti Aim%%Set Stance")(randomStance)
+
+    print("Anti Aim settings randomized!")
+end
+
+-- Добавляем кнопку для рандомизации настроек
+antiaim:AddButton("Randomize Settings", randomizeAntiAim)
+
+-- Переменные для таймера
+local autoRandomizeTimer = nil
+local randomizeInterval = 10000
+
+-- Добавляем переключатель для автоматической рандомизации
+antiaim:AddToggle("Auto Randomize", false, function(state)
+    if state then
+        -- Запускаем таймер
+        autoRandomizeTimer = setInterval(function()
+            randomizeAntiAim()
+        end, randomizeInterval)
+    else
+        -- Останавливаем таймер
+        if autoRandomizeTimer then
+            clearInterval(autoRandomizeTimer)
+            autoRandomizeTimer = nil
+        end
+    end
+end)
+
+-- Добавляем слайдер для интервала рандомизации
+antiaim:AddSlider("Randomize Interval", 10, 1, 60, 1, " seconds", function(value)
+    randomizeInterval = value * 1000
+end)
 
     fakelag:AddToggle('Fake Lag', false, getCallback('Fake Lag%%Enabled')):AddKeyBind(nil, 'Key Bind');
     fakelag:AddToggle('Randomize Position', false, getCallback('Fake Lag%%Randomize Position'));
